@@ -20,13 +20,25 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const sectorsCollection = client.db("nameSector").collection("sectors");
+    const personsCollection = client.db("nameSector").collection("persons");
 
+    // get sectors
     app.get("/sectors", async (req, res) => {
       const query = {};
 
       const sectors = await sectorsCollection.find(query).toArray();
 
       res.send(sectors);
+    });
+
+    // save person data
+    app.post("/data-input", async (req, res) => {
+      const data = req.body;
+
+      const result = await personsCollection.insertOne(data);
+
+      console.log(result);
+      res.send(result);
     });
 
     // used to insert sector data to database
