@@ -4,6 +4,7 @@ const cors = require("cors");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const jwt = require("jsonwebtoken");
 
 // middleware
 app.use(cors());
@@ -48,6 +49,15 @@ async function run() {
       const persons = await personsCollection.find(query).toArray();
 
       res.send(persons);
+    });
+
+    // get session token
+    app.get("/session-id", (req, res) => {
+      const time = req.query.time;
+
+      const token = jwt.sign({ time }, process.env.ACCESS_TOKEN_SECRET);
+
+      res.send({ token: token, time: time });
     });
 
     // used to insert sector data to database
