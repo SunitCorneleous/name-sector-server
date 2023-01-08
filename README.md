@@ -6,4 +6,4 @@
 
 ### get session token by time: https://name-sector-server.vercel.app/session-id?time=${currentTime}
 
-### edit person data: https://name-sector-server.vercel.app/edit-person-data/${dataToBeEdit._id}
+### edit person data: https://name-sector-server.vercel.app/edit-person-data/${id}
