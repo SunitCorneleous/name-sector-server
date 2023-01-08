@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 
 // middleware
@@ -17,6 +17,29 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+//verify jwt
+function verifyJWT(req, res, next) {
+  // get authorization from header
+  const authHeader = req.headers.authorization;
+
+  // check if the header exists
+  if (!authHeader) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+
+  // split the token
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "forbidden access" });
+    }
+
+    req.decoded = decoded;
+    next();
+  });
+}
 
 async function run() {
   try {
@@ -38,7 +61,6 @@ async function run() {
 
       const result = await personsCollection.insertOne(data);
 
-      console.log(result);
       res.send(result);
     });
 
@@ -58,6 +80,28 @@ async function run() {
       const token = jwt.sign({ time }, process.env.ACCESS_TOKEN_SECRET);
 
       res.send({ token: token, time: time });
+    });
+
+    //edit person data
+    app.put("/edit-person-data/:id", verifyJWT, async (req, res) => {
+      const data = req.body;
+      const id = req.params.id;
+
+      const query = { _id: ObjectId(id) };
+
+      const updatedDoc = {
+        $set: data,
+      };
+
+      const options = { upsert: true };
+
+      const result = await personsCollection.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
     });
 
     // used to insert sector data to database
