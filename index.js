@@ -41,9 +41,18 @@ async function run() {
       res.send(result);
     });
 
+    // get all persons
+    app.get("/persons", async (req, res) => {
+      const query = {};
+
+      const persons = await personsCollection.find(query).toArray();
+
+      res.send(persons);
+    });
+
     // used to insert sector data to database
-    /* app.get("/sectors", (req, res) => {
-      const sectorArr = [
+    /*     app.get("/sectors", async (req, res) => {
+      const sectors = [
         "Manufacturing",
         "Construction materials",
         "Electronics and Optics",
@@ -125,17 +134,13 @@ async function run() {
         "Water",
       ];
 
-      sectorArr.forEach(async sector => {
-        const sectorObj = {
-          name: sector,
-        };
+      const sectorObj = {
+        sectors,
+      };
 
-        const result = await sectorsCollection.insertOne(sectorObj);
+      const result = await sectorsCollection.insertOne(sectorObj);
 
-        console.log(result);
-      });
-
-      console.log(sectorArr.length);
+      console.log(result);
 
       res.send("working");
     }); */
